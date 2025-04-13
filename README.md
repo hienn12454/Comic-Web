@@ -1,1 +1,1 @@
-# Comic-Web
+# Comics
