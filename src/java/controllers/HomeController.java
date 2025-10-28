@@ -61,15 +61,19 @@ public class HomeController extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         StoryDAO storyDAO = new StoryDAO();
-        
-        // Lấy danh sách các truyện đã hoàn thành kèm theo ảnh
-        List<Story> completedStories = storyDAO.getCompletedStoriesWithImages();
-        
-        // Lấy danh sách các truyện mới nhất kèm theo ảnh
-        List<Story> newestStories = storyDAO.getNewestStoriesWithImages();
-        
-        request.setAttribute("completedStories", completedStories);
-        request.setAttribute("newestStories", newestStories);
+        String q = request.getParameter("q");
+        if (q != null && !q.trim().isEmpty()) {
+            List<Story> searchResults = storyDAO.searchStoriesByTitle(q.trim());
+            request.setAttribute("q", q);
+            request.setAttribute("searchResults", searchResults);
+        } else {
+            // Lấy danh sách các truyện đã hoàn thành kèm theo ảnh
+            List<Story> completedStories = storyDAO.getCompletedStoriesWithImages();
+            // Lấy danh sách các truyện mới nhất kèm theo ảnh
+            List<Story> newestStories = storyDAO.getNewestStoriesWithImages();
+            request.setAttribute("completedStories", completedStories);
+            request.setAttribute("newestStories", newestStories);
+        }
         request.getRequestDispatcher("home.jsp").forward(request, response);
     }
 

@@ -18,6 +18,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 import models.User;
+import utils.PasswordUtil;
 
 /**
  *
@@ -110,10 +111,11 @@ public class UserController extends HttpServlet {
         String userName = request.getParameter("userName");
         String email = request.getParameter("email");
         String password = request.getParameter("password");
+        String hashed = PasswordUtil.sha256(password);
         String role = request.getParameter("role");
         boolean isActive = Boolean.parseBoolean(request.getParameter("isActive"));
 
-        User newUser = new User(0, userName, email, password, role, isActive);
+        User newUser = new User(0, userName, email, hashed, role, isActive);
         boolean success = userDAO.addUser(newUser);
 
         if (success) {
@@ -146,7 +148,14 @@ public class UserController extends HttpServlet {
         String role = request.getParameter("role");
         boolean isActive = Boolean.parseBoolean(request.getParameter("isActive"));
 
-        User updatedUser = new User(userId, userName, email, password, role, isActive);
+        String finalPassword;
+        if (password == null || password.trim().isEmpty()) {
+            User existing = userDAO.getUserById(userId);
+            finalPassword = existing != null ? existing.getPassword() : "";
+        } else {
+            finalPassword = PasswordUtil.sha256(password);
+        }
+        User updatedUser = new User(userId, userName, email, finalPassword, role, isActive);
         boolean success = userDAO.updateUser(updatedUser);
 
         if (success) {
@@ -160,11 +169,12 @@ public class UserController extends HttpServlet {
     private void deleteUser(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         int userId = Integer.parseInt(request.getParameter("userId"));
-        boolean success = false;
-        if(request.getParameter("active").equals("1"))
-            userDAO.activeUser(userId);
-        else
-            userDAO.disableUser(userId);
+        boolean success;
+        if(request.getParameter("active").equals("1")) {
+            success = userDAO.activeUser(userId);
+        } else {
+            success = userDAO.disableUser(userId);
+        }
 
         if (success) {
             response.sendRedirect("main?action=user");

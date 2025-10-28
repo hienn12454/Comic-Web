@@ -365,7 +365,6 @@ public class StoryDAO extends DBContext {
     }
 
     public Chapter getChapterById(int chapterId) {
-        deleteChapterImagesByChapterId(chapterId);
         String sql = "Select * from chapters where chapterId = ?";
         try {
             PreparedStatement pre = connection.prepareStatement(sql);
@@ -379,6 +378,30 @@ public class StoryDAO extends DBContext {
             e.printStackTrace();
         }
         return null;
+    }
+
+    public List<Story> searchStoriesByTitle(String keyword) {
+        List<Story> stories = new ArrayList<>();
+        String sql = "SELECT StoryId, Title, Description, AuthorId, GenreId, Status, CreatedAt, Image FROM Stories WHERE Title LIKE ? ORDER BY CreatedAt DESC";
+        try (PreparedStatement stm = connection.prepareStatement(sql)) {
+            stm.setString(1, "%" + keyword + "%");
+            ResultSet rs = stm.executeQuery();
+            while (rs.next()) {
+                Story story = new Story();
+                story.setStoryId(rs.getInt("StoryId"));
+                story.setTitle(rs.getString("Title"));
+                story.setDescription(rs.getString("Description"));
+                story.setAuthorID(rs.getInt("AuthorId"));
+                story.setGenreID(rs.getInt("GenreId"));
+                story.setStatus(rs.getString("Status"));
+                story.setCreatedAt(rs.getTimestamp("CreatedAt"));
+                story.setImage(rs.getString("Image"));
+                stories.add(story);
+            }
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+        return stories;
     }
 
     public List<ChapterImage> getListChapterImagesByChapterId(int chapterId) {

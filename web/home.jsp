@@ -1,5 +1,6 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <!DOCTYPE html>
 <html>
 <head>
@@ -8,15 +9,36 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
           integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z"
           crossorigin="anonymous">
-    <!-- Your custom CSS -->
     <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
      <jsp:include page="header.jsp" />
     <div class="container">
+        <c:if test="${not empty searchResults}">
+            <div class="row mt-4">
+                <div class="col">
+                    <h1><i class="fas fa-search"></i> Search results for "${fn:escapeXml(q)}"</h1>
+                    <div class="row">
+                        <c:forEach var="story" items="${searchResults}">
+                            <div class="col-md-4 mb-3">
+                                <div class="card">
+                                    <a href="main?action=detail&storyId=${story.storyId}"><img src="${story.image}" class="card-img-top" alt="..."></a>
+                                    <div class="card-body">
+                                        <h5 class="card-title">${story.title}</h5>
+                                        <p class="card-text">${story.description}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </c:forEach>
+                    </div>
+                </div>
+            </div>
+        </c:if>
+        <c:if test="${empty searchResults}">
         <div class="row mt-4">
             <div class="col">
-                <h1>Completed Stories</h1>
+                <h1><i class="fas fa-check-circle"></i> Completed Stories</h1>
                 <div class="row">
                     <c:forEach var="story" items="${completedStories}">
                         <div class="col-md-4 mb-3">
@@ -36,7 +58,7 @@
 
         <div class="row mt-4">
             <div class="col">
-                <h1>Newest Stories</h1>
+                <h1><i class="fas fa-fire"></i> Newest Stories</h1>
                 <div class="row">
                     <c:forEach var="story" items="${newestStories}">
                         <div class="col-md-4 mb-3">
@@ -53,7 +75,10 @@
                 </div>
             </div>
         </div>
+        </c:if>
     </div>
+
+    <jsp:include page="footer.jsp" />
 
     <!-- Bootstrap JS and dependencies -->
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"

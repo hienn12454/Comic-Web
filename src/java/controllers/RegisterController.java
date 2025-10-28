@@ -17,6 +17,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import models.User;
+import utils.PasswordUtil;
 
 /**
  *
@@ -60,10 +61,11 @@ public class RegisterController extends HttpServlet {
         String userName = request.getParameter("userName");
         String email = request.getParameter("email");
         String password = request.getParameter("password");
+        String hashed = PasswordUtil.sha256(password);
         String role = "User";  // Default role
         boolean isActive = true;
 
-        User newUser = new User(0, userName, password,email,role, isActive, null);
+        User newUser = new User(0, userName, hashed,email,role, isActive, null);
         newUser.setRole(role);
 
         UserDAO userDAO = new UserDAO();

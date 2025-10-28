@@ -5,6 +5,7 @@
 package controllers;
 
 import dao.UserDAO;
+import utils.PasswordUtil;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -43,14 +44,15 @@ public class LoginController extends HttpServlet {
             throws ServletException, IOException {
         String email = request.getParameter("email");
         String password = request.getParameter("password");
-        User user = userDAO.getUserByEmailAndPassword(email, password);
+        String hashed = PasswordUtil.sha256(password);
+        User user = userDAO.getUserByEmailAndPassword(email, hashed);
         if (user == null) {
             request.setAttribute("mess", "Invalid email or password.");
             request.getRequestDispatcher("login.jsp").forward(request, response);
         } else {
             HttpSession session = request.getSession();
             session.setAttribute("user", user);
-            response.sendRedirect("main?action=dashboard"); // Redirect to main dashboard after login
+            response.sendRedirect("home");
         }
     }
 }
